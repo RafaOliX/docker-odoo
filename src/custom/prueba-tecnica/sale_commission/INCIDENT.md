@@ -53,3 +53,16 @@ En el mismo commit `3f4d73f`, los tests existentes fueron modificados así:
 ```diff
 -        return self.env["sale.order"].with_user(user).create({
 +        return self.env["sale.order"].create({
+
+
+### Nota de despliegue
+
+Tras actualizar el módulo (`-u sale_commission`), es necesario **reiniciar el
+servicio de Odoo** para invalidar la caché de permisos (`ir.model.access`) que
+mantiene el proceso web en memoria. Solo con la actualización, el proceso HTTP
+sigue usando la tabla de accesos antigua aunque la base de datos ya tenga la
+nueva, y el bug persiste hasta el reinicio.
+
+En este entorno Docker:
+```bash
+docker compose -f docker-compose.generated.yml restart odoo-prueba
