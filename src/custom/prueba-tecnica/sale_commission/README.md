@@ -19,3 +19,15 @@ Calcula la comisión del vendedor en cada línea de pedido de venta y ofrece un 
 ```bash
 ./odoo test prueba-tecnica sale_commission
 ```
+## Incidente T-200 (2026-10-23)
+
+Ver [`INCIDENT.md`](./INCIDENT.md). Corrección aplicada en la rama
+`hotfix/T-200`: se concedió lectura de `sale.commission.rule` al grupo
+`sales_team.group_sale_salesman`. Commit: `[FIX] sale_commission: T-200 ...`.
+
+### Limitaciones conocidas
+
+- `_get_commission_percent()` usa `self.env.user.commission_percent` como
+  fallback cuando no hay regla de categoría. Debería usar
+  `order.user_id.commission_percent`. **No corregido en el hotfix** para no
+  ampliar el alcance; registrado como ticket separado.
