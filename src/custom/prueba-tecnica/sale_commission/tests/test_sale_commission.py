@@ -64,3 +64,11 @@ class TestSaleCommission(TransactionCase):
         order = self._create_order(self.salesman)
         order.action_confirm()
         self.assertEqual(order.order_line.commission_percent, 10.0)
+
+    def test_salesman_can_confirm_order(self):
+        """T-200: un vendedor (no manager) debe poder confirmar un pedido."""
+        self.category.commission_percent = 8.0
+        order = self._create_order(self.salesman)
+        order.with_user(self.salesman).action_confirm()
+        self.assertEqual(order.state, "sale")
+        self.assertEqual(order.order_line.commission_percent, 8.0)
