@@ -1,33 +1,27 @@
-# Comisiones de vendedores (`sale_commission`)
+# Comisiones de Vendedores (`sale_commission`)
 
-Calcula la comisión del vendedor en cada línea de pedido de venta y ofrece un análisis mensual por vendedor.
+Módulo para el cálculo de comisiones por línea de venta y análisis mensual de rendimiento.
 
-## Configuración
+## Características
+- Cálculo automático de comisión sobre el subtotal (sin impuestos) al confirmar el pedido.
+- Configuración de porcentaje global por vendedor (Ajustes > Usuarios).
+- Configuración de porcentaje por categoría de producto (con soporte para herencia de subcategorías).
+- Tablero analítico mensual por vendedor.
 
-- **Porcentaje del vendedor:** Ajustes › Usuarios › pestaña *Comisiones* (solo gerentes de ventas).
-- **Porcentaje por categoría (desde la 1.1):** Inventario/Ventas › Configuración › Categorías de producto,
-  campo *Comisión (%)*. Si la categoría (o una categoría padre) tiene porcentaje, reemplaza al del vendedor.
+## Instalación y Uso
+1. Instalar el módulo en una base de datos con `sale` y `account`.
+2. Configurar el porcentaje base en el perfil del usuario vendedor.
+3. (Opcional) Configurar porcentajes específicos en las categorías de producto.
+4. Al confirmar un pedido, el porcentaje se congela en la línea para evitar alteraciones retroactivas.
 
-## Cómo funciona
+## Historial de Incidentes
+- **T-200 (Hotfix)**: Se corrigió un error de acceso (`AccessError`) al confirmar pedidos con el rol de vendedor. Ver [INCIDENT.md](./INCIDENT.md) para el análisis técnico completo.
 
-- Al confirmar el pedido se fija el porcentaje en cada línea y se calcula la comisión sobre el subtotal sin impuestos.
-- El botón *Recalcular comisiones* del pedido vuelve a aplicar los porcentajes vigentes.
-- Ventas › Reportes › *Comisiones*: tabla dinámica y gráfico por vendedor y mes. Cada vendedor ve solo lo suyo.
+## Deuda Técnica Conocida
+Durante el análisis del código para el T-200, se identificó el siguiente comportamiento que **no fue corregido** en el hotfix para no alterar el alcance ni el comportamiento en producción, pero debe abordarse en un futuro ticket:
+- En el método `_get_commission_percent()`, si no existe una regla por categoría, el sistema usa `self.env.user.commission_percent` en lugar de `order.user_id.commission_percent`. Esto genera un bug silencioso cuando un gerente confirma un pedido en nombre de un vendedor: la comisión se calcula con el porcentaje del gerente, no del vendedor.
 
 ## Pruebas
-
+Para ejecutar la suite de pruebas unitarias de este módulo:
 ```bash
-./odoo test prueba-tecnica sale_commission
-```
-## Incidente T-200 (2026-10-23)
-
-Ver [`INCIDENT.md`](./INCIDENT.md). Corrección aplicada en la rama
-`hotfix/T-200`: se concedió lectura de `sale.commission.rule` al grupo
-`sales_team.group_sale_salesman`. Commit: `[FIX] sale_commission: T-200 ...`.
-
-### Limitaciones conocidas
-
-- `_get_commission_percent()` usa `self.env.user.commission_percent` como
-  fallback cuando no hay regla de categoría. Debería usar
-  `order.user_id.commission_percent`. **No corregido en el hotfix** para no
-  ampliar el alcance; registrado como ticket separado.
+./odoo test prueba sale_commission
