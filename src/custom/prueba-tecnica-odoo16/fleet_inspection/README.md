@@ -1,18 +1,20 @@
-# Inspecciones de vehículos (`fleet_inspection`)
+# Módulo de Inspecciones (`fleet_inspection`)
 
-Módulo escrito para **Odoo 16**. Es el punto de partida del **Ejercicio 2 — Migración** de la prueba técnica.
+Este módulo permite registrar inspecciones de vehículos mediante un checklist configurable.
 
-## Qué hace
+## Tabla de Migración (Odoo 16 → 17)
 
-- Registra inspecciones de los vehículos de Flota con un checklist de puntos (frenos, luces, cauchos…) que se carga solo al crear la inspección.
-- Estados: borrador → en curso → aprobada / rechazada. Un punto crítico con falla impide aprobar.
-- Tipo de vehículo como campo de selección: moto, carro, camión u otro.
-- Grupos: *Inspector* (ve solo sus inspecciones) y *Supervisor de inspecciones* (ve todas, aprueba y rechaza).
-- Acción planificada diaria que marca las inspecciones con más de 7 días en curso y le crea una actividad al inspector.
-- Reporte PDF de la inspección.
+| Qué cambió | Por qué | Cómo lo resolví |
+| :--- | :--- | :--- |
+| **Manifest (`__manifest__.py`)** | Odoo 17 rechaza versiones de módulos que no coincidan con la versión base. | Actualicé la clave `version` de `16.0.1.0.0` a `17.0.1.0.0`. |
+| **Vistas XML (`fleet_inspection_views.xml`)** | La directiva `attrs` fue eliminada en Odoo 17. Ahora se usan expresiones de dominio directas. | Reemplacé `attrs="{'invisible': [...]}"` por `invisible="..."` y `attrs="{'readonly': [...]}"` por `readonly="..."`. |
+| **Botones del Formulario (`header`)** | El atributo `states` en los botones fue eliminado en Odoo 17. | Reemplacé `states="draft"` por `invisible="state != 'draft'"`. |
+| **Modelos Python (`fleet_inspection.py`)** | El decorador `@api.model` para el método `create` está deprecado. Odoo 17 exige `@api.model_create_multi`. | Cambié el método `create` para recibir `vals_list`, iterar sobre él y llamar a `super()`. Eliminé el parámetro `states` de los campos. |
+| **Reportes QWeb (`fleet_inspection_report.xml`)** | `t-esc` está deprecado y lanza advertencias en Odoo 17. | Reemplacé todas las etiquetas `t-esc` por `t-out`. |
 
-## Cómo probarlo (Odoo 16)
+## Pruebas
+
+El módulo incluye una suite de pruebas unitarias que validan el flujo, las restricciones y los permisos. Para ejecutarlas:
 
 ```bash
-./odoo test -d prueba_16 -m fleet_inspection
-```
+./odoo test prueba fleet_inspection
