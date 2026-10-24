@@ -1,0 +1,1 @@
+from . import payment_request src/custom/payment_request/ -type f -exec sed -i s/-e$//g {} ;
