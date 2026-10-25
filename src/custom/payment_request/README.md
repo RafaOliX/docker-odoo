@@ -1,15 +1,24 @@
 # Solicitudes de Pago (`payment_request`)
 
+Módulo para la gestión y aprobación de pagos a proveedores.
+
+## Tramos Completados
+- [x] Tramo A: Modelo base, flujo de estados, grupos de seguridad y conversión de moneda.
+- [x] Tramo B: Niveles de aprobación configurables, wizards de rechazo y pago, reporte PDF.
+- [x] Tramo C: Concurrencia con bloqueo de base de datos, multi-compañía y manejo de fallos transaccionales.
+
 ## Supuestos y preguntas al cliente (Carolina)
 
-**Preguntas que le haría a Carolina:**
-1. **Límite de montos:** Mencionas que los pagos normales los aprueba el jefe y los grandes gerencia. ¿Cuál es el monto exacto que separa un pago "normal" de uno "grande"? (Ej: ¿A partir de $500?).
-2. **Tasa de cambio:** Mencionas que facturan en dólares pero pagan en bolívares. Para el asiento contable del pago, ¿qué tasa de cambio debemos usar? ¿La del Banco Central de Venezuela (BCV) del día del pago, o manejan una tasa interna?
-3. **Contabilidad:** Cuando tesorería registre el pago, ¿en qué diario contable específico (banco) se debe reflejar?
+**Preguntas para Carolina:**
+1. **Límite de montos:** Para configurar los niveles de aprobación, ¿cuál es el monto exacto que separa un pago "normal" de uno "grande"?
+2. **Tasa de cambio:** ¿Qué tasa de cambio se debe utilizar para el pago de facturas en USD? ¿La tasa oficial del BCV del día del pago o una tasa interna?
+3. **Contabilidad:** ¿Tesorería registrará el pago directamente en un diario de banco específico?
 
-**Supuestos asumidos para avanzar sin respuesta:**
-- El sistema utiliza una lógica de "Monto Mínimo" para escalar la aprobación: si una solicitud supera el monto mínimo del nivel 2 (Gerencia), se le asigna automáticamente a Gerencia, ignorando al jefe de área.
-- Las solicitudes en moneda extranjera (USD) se convierten automáticamente a la moneda de la compañía (VES) usando la tasa de cambio configurada en Odoo para la fecha de la solicitud.
-- Si se rechaza, la solicitud vuelve a estado Borrador para que el empleado pueda corregir y reenviar.
-- Una solicitud enviada no puede ser editada por el solicitante.
-- El pago se registra como un `account.payment` de tipo proveedor (outbound) y se vincula a la solicitud.
+**Supuestos asumidos:**
+- El sistema asigna al aprobador basándose en el nivel cuyo umbral sea el más alto que cubra el monto solicitado.
+- Se implementó un `savepoint` transaccional: si la creación del asiento contable falla, la solicitud no cambia a estado "Pagada".
+- Las solicitudes no pueden ser editadas por el solicitante una vez que han sido enviadas.
+
+## Pruebas
+```bash
+./odoo test prueba payment_request
