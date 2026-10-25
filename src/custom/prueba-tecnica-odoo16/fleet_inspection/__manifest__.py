@@ -1,9 +1,10 @@
 {
     "name": "Inspecciones de vehículos",
     "summary": "Checklist de inspección para los vehículos de la flota",
-    "version": "16.0.1.0.0",
+    "version": "17.0.1.0.0",
     "category": "Human Resources/Fleet",
     "author": "Binaural",
+    "contributors": ["Rafael Olivares - rafaolix59@gmail.com"],
     "license": "LGPL-3",
     "depends": ["fleet", "mail"],
     "data": [
