@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_payment_request" model="ir.actions.report">
+        <field name="name">Solicitud de Pago</field>
+        <field name="model">payment.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">payment_request.report_payment_request_template</field>
+        <field name="report_file">payment_request.report_payment_request_template</field>
+        <field name="print_report_name">'Solicitud - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_payment_request"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_payment_request_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Título -->
+                        <h2 class="mt-4 mb-4">
+                            <span t-if="o.state == 'paid'">Comprobante de Pago:</span>
+                            <span t-else="">Solicitud de Pago:</span>
+                            <span t-field="o.name"/>
+                        </h2>
+                        
+                        <!-- Tabla de Datos Principales -->
+                        <table class="table table-sm table-bordered mt-4 mb-4">
+                            <tbody>
+                                <tr>
+                                    <th class="bg-light" style="width: 25%;">Proveedor:</th>
+                                    <td style="width: 25%;"><span t-field="o.partner_id.name"/></td>
+                                    <th class="bg-light" style="width: 25%;">Solicitante:</th>
+                                    <td style="width: 25%;"><span t-field="o.requester_id.name"/></td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">Fecha de Solicitud:</th>
+                                    <td><span t-field="o.date"/></td>
+                                    <th class="bg-light">Estado Actual:</th>
+                                    <td><span t-field="o.state"/></td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">Monto:</th>
+                                    <td><strong><span t-field="o.amount"/></strong></td>
+                                    <th class="bg-light">Monto en Moneda Local:</th>
+                                    <td><span t-field="o.amount_company_currency"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Concepto -->
+                        <div class="mt-4 mb-4">
+                            <h4 class="mb-2">Concepto</h4>
+                            <div class="border rounded p-3 bg-light">
+                                <p t-field="o.concept" class="mb-0"/>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de Auditoría -->
+                        <div class="mt-5" t-if="o.approval_date">
+                            <h4 class="mb-3">Auditoría de Aprobación</h4>
+                            <table class="table table-sm table-bordered text-center">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th style="width: 50%;">Aprobado por</th>
+                                        <th style="width: 50%;">Fecha y Hora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span t-field="o.approver_id.name"/></td>
+                                        <td><span t-field="o.approval_date"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-5" t-else="">
+                            <div class="alert alert-warning text-center" role="alert">
+                                Esta solicitud aún no ha sido aprobada.
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
