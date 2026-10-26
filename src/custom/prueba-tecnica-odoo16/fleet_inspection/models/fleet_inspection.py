@@ -24,7 +24,6 @@ class FleetInspection(models.Model):
         required=True,
         tracking=True,
         readonly=True,
-        states={"draft": [("readonly", False)]},
     )
     vehicle_type = fields.Selection(
         VEHICLE_TYPES,
@@ -33,7 +32,6 @@ class FleetInspection(models.Model):
         default="car",
         tracking=True,
         readonly=True,
-        states={"draft": [("readonly", False)]},
     )
     inspector_id = fields.Many2one(
         "res.users",
